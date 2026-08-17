@@ -2,12 +2,22 @@
 
 /**
  * Deterministic probes against a running server.
- * Usage: node grader/probe.js [baseUrl]
+ * Usage:
+ *   node grader/probe.js [baseUrl]
+ *   node grader/probe.js http://localhost:3000   # Node
+ *   node grader/probe.js http://localhost:8000   # Python
  */
 
 const http = require('http');
 const https = require('https');
+const path = require('path');
 const { URL } = require('url');
+
+try {
+  require('jsonwebtoken');
+} catch {
+  module.paths.unshift(path.join(__dirname, '..', 'node', 'node_modules'));
+}
 const jwt = require('jsonwebtoken');
 
 const BASE = process.argv[2] || process.env.BASE_URL || 'http://localhost:3000';

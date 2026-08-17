@@ -16,54 +16,82 @@ For each issue you find, record:
 2. **Root cause** — what in the code caused it
 3. **Fix** — what you changed
 
-## Setup
+## Pick one stack
+
+This repo has two backends that expose the **same API** and share the **same frontend**, **knowledge base**, and **JSON data store**.
+
+| Stack | Folder | Runtime | Default URL |
+|-------|--------|---------|-------------|
+| Node.js / Express | `node/` | **Node.js 20+** (22 LTS is fine) | http://localhost:3000 |
+| Python / FastAPI | `python/` | **Python 3.11 or 3.12** (not 3.13/3.14) | http://localhost:8000 |
+
+Set up **only the stack assigned to you** (or the one you choose). You do not need both runtimes.
+
+Check versions before installing:
 
 ```bash
-# 1. Model
-ollama pull llama3.2
+node -v      # expect v20.x or newer
+python3.12 --version   # or python3.11 — expect 3.11.x / 3.12.x
+```
 
-# 2. Install & run
+## Setup — Node
+
+```bash
+ollama pull llama3.2
+cd node
 npm install
 npm start
-
-# 3. Open the UI
-# http://localhost:3000
-
-# 4. Seed logins
-# admin / admin123
-# emp / emp123
-# guest / guest123
-
-# 5. Run automated probes (server must be up)
-node grader/probe.js
+# UI: http://localhost:3000
+node ../grader/probe.js http://localhost:3000
 ```
 
-Optional: copy `.env.example` to `.env` if you need local overrides.
-
-## Data store
-
-This app does **not** use an external database. Runtime state is stored as JSON files on disk under `data/`:
-
-- `data/users.json` — registered users
-- `data/conversations.json` — chat history
-- `data/metrics.json` — aggregate request metrics
-
-Knowledge-base documents live separately in `kb/` (read-only reference content).
-
-To wipe runtime data and restore the three seed users:
+## Setup — Python
 
 ```bash
-npm run db:clear
+ollama pull llama3.2
+cd python
+python3.12 -m venv .venv   # 3.11 or 3.12 recommended
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+# UI: http://localhost:8000
+python ../grader/probe.py http://localhost:8000
 ```
 
-Use this when you want a clean slate (for example after registration experiments or noisy probe runs). Restart the server afterward if it is already running.
+## Seed logins
+
+- `admin` / `admin123`
+- `emp` / `emp123`
+- `guest` / `guest123`
+
+## Shared data store
+
+There is **no external database**. Runtime state is JSON files under repo-root `data/`:
+
+- `data/users.json`
+- `data/conversations.json`
+- `data/metrics.json`
+
+Knowledge-base documents are in `kb/` (shared, read-only reference content). The UI is in `frontend/` (shared).
+
+Reset runtime data and restore seed users:
+
+```bash
+# from node/
+npm run db:clear
+
+# from python/
+python scripts/clear_db.py
+```
+
+Restart your server after clearing if it is already running.
 
 Optional: set `DATA_DIR=/some/other/path` to store JSON files somewhere else.
 
 ## What "done" looks like
 
 - Happy-path demo still works.
-- `node grader/probe.js` improves (more PASSes).
+- Grader probes improve (more PASSes).
 - Judgment items in `grader/CHECKLIST.md` are addressed where you claim a fix.
 - Your write-up lists symptom / root cause / fix per issue.
 
@@ -75,5 +103,5 @@ Use `grader/CHECKLIST.md` plus the probe output. A green demo alone does **not**
 
 - Prefer behavior checks over grepping for crash stacks — many failures still return HTTP 200.
 - Compare alternate module versions when you notice duplicates in the same area.
-- Re-run `grader/probe.js` after each fix; some issues only appear under concurrency or edge inputs.
+- Re-run the grader after each fix; some issues only appear under concurrency or edge inputs.
 - Do not log passwords or raw tokens while debugging.

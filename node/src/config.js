@@ -15,7 +15,7 @@ const COST_PER_1K_TOKENS = 0.02;
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const KB_DIR = path.join(ROOT, 'kb');
 const LOGS_DIR = path.join(ROOT, 'logs');
 const FRONTEND_DIR = path.join(ROOT, 'frontend');

@@ -1,13 +1,13 @@
 {
-  "name": "ai-support-assistant",
+  "name": "ai-support-assistant-node",
   "version": "1.0.0",
-  "description": "AI Support Assistant — internal knowledge base chat with RBAC, rate limits, and observability",
+  "description": "AI Support Assistant — Node.js / Express backend",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "test": "node --test tests/",
-    "grader": "node grader/probe.js",
+    "grader": "node ../grader/probe.js http://localhost:3000",
     "db:clear": "node scripts/clear-db.js"
   },
   "engines": {

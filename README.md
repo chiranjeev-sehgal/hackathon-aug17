@@ -1,65 +1,86 @@
 # AI Support Assistant
 
-Internal knowledge-base chat assistant with JWT auth, role-based access, rate limiting, and Ollama-backed answers.
+Deliberately imperfect training app for debugging an AI support assistant.
+Choose **one** backend stack. Both share the same API contract, frontend, knowledge base, and JSON data store.
+
+```text
+repo/
+  frontend/     shared UI
+  kb/           shared knowledge base
+  data/         shared JSON "database"
+  logs/         shared logs
+  grader/       shared probes + checklist
+  node/         Express backend
+  python/       FastAPI backend
+```
 
 ## Prerequisites
 
-- Node.js 20+
-- [Ollama](https://ollama.com) running locally with `llama3.2`
+- [Ollama](https://ollama.com) with `llama3.2`
+- **Either** Node.js 20+ **or** Python 3.11–3.12 (only the stack you choose; avoid 3.14 for this exercise)
+
 
 ```bash
 ollama pull llama3.2
 ```
 
-## Setup
+## Shared data store
+
+Runtime state lives in JSON files under `data/`:
+
+- `users.json`
+- `conversations.json`
+- `metrics.json`
+
+Clear and reseed from either stack:
 
 ```bash
+# Node
+cd node && npm run db:clear
+
+# Python
+cd python && python scripts/clear_db.py
+```
+
+## Option A — Node.js / Express
+
+```bash
+cd node
 npm install
-cp .env.example .env   # optional; set JWT_SECRET for local overrides
-```
-
-## Run
-
-```bash
 npm start
+# http://localhost:3000
 ```
-
-Server listens on `http://localhost:3000`.
-
-- API health: `GET /health`
-- UI: open `http://localhost:3000` in a browser
-
-### Seed users
-
-| Username | Password  | Role     |
-|----------|-----------|----------|
-| admin    | admin123  | Admin    |
-| emp      | emp123    | Employee |
-| guest    | guest123  | Guest    |
-
-## Data store
-
-Runtime state (users, conversations, metrics) is stored as JSON files under `data/`.
-
-```bash
-npm run db:clear   # wipe data/*.json and restore seed users
-```
-
-Optional: set `DATA_DIR=/path/to/dir` to use a different folder.
-
-## Tests
 
 ```bash
 npm test
+npm run grader
+# or from repo root: node grader/probe.js http://localhost:3000
 ```
 
-## Grader probes
-
-With the server running:
+## Option B — Python / FastAPI
 
 ```bash
-npm run grader
-# or: node grader/probe.js
+cd python
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+# http://localhost:8000
 ```
 
-See `TRAINEE_BRIEF.md` for the exercise brief and `grader/CHECKLIST.md` for review criteria.
+```bash
+pytest
+python ../grader/probe.py http://localhost:8000
+```
+
+## Seed users
+
+| Username | Password | Role     |
+|----------|----------|----------|
+| admin    | admin123 | Admin    |
+| emp      | emp123   | Employee |
+| guest    | guest123 | Guest    |
+
+## Assignment
+
+See `TRAINEE_BRIEF.md`. Review criteria: `grader/CHECKLIST.md`.
