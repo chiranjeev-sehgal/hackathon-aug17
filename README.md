@@ -83,4 +83,4 @@ python ../grader/probe.py http://localhost:8000
 
 ## Assignment
 
-See `TRAINEE_BRIEF.md`. Review criteria: `grader/CHECKLIST.md`.
+See `TRAINEE_BRIEF.md`. Submission format and **100-point** scoring: `SUBMISSION.md`. Review criteria: `grader/CHECKLIST.md`.

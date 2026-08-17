@@ -95,6 +95,16 @@ Optional: set `DATA_DIR=/some/other/path` to store JSON files somewhere else.
 - Judgment items in `grader/CHECKLIST.md` are addressed where you claim a fix.
 - Your write-up lists symptom / root cause / fix per issue.
 
+## Submission & scoring
+
+See **`SUBMISSION.md`**.
+
+- Submit your code **and** a Findings Report.
+- Total score is **100**.
+- Each of the **13** issues: **2** points for correct identification, **5** for a correct fix (**7** max per issue → **91**).
+- Plus up to **9** for report quality and evidence.
+- Identifying without fixing still earns the identify points.
+
 ## Checklist (self-review)
 
 Use `grader/CHECKLIST.md` plus the probe output. A green demo alone does **not** mean you are finished.
