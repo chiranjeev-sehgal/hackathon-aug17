@@ -4,15 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { KB_DIR } = require('../config');
-
-const users = new Map();
-const conversations = new Map();
-const metrics = {
-  total_requests: 0,
-  total_tokens: 0,
-  total_cost_usd: 0,
-  latencies: [],
-};
+const {
+  readCollection,
+  writeCollection,
+  updateCollection,
+} = require('../db/jsonDb');
 
 let kbDocs = [];
 
@@ -40,47 +36,67 @@ async function seedUsers() {
     { username: 'guest', password: 'guest123', role: 'Guest' },
   ];
 
+  const users = readCollection('users');
+  let changed = false;
+
   for (const seed of seeds) {
+    if (users[seed.username]) {
+      continue;
+    }
     const hash = await bcrypt.hash(seed.password, 10);
-    const id = `user_${seed.username}`;
-    users.set(seed.username, {
-      id,
+    users[seed.username] = {
+      id: `user_${seed.username}`,
       username: seed.username,
       password_hash: hash,
       role: seed.role,
-    });
+    };
+    changed = true;
+  }
+
+  if (changed) {
+    writeCollection('users', users);
   }
 }
 
 function findUserByUsername(username) {
-  return users.get(username) || null;
+  const users = readCollection('users');
+  return users[username] || null;
 }
 
 function createUser({ username, password_hash, role }) {
-  if (users.has(username)) {
+  const users = readCollection('users');
+  if (users[username]) {
     return null;
   }
   const id = `user_${username}_${Date.now()}`;
   const user = { id, username, password_hash, role };
-  users.set(username, user);
+  users[username] = user;
+  writeCollection('users', users);
   return { id: user.id, username: user.username, role: user.role };
 }
 
 function getOrCreateConversation(conversationId, userId) {
-  if (conversationId && conversations.has(conversationId)) {
-    const conv = conversations.get(conversationId);
+  const conversations = readCollection('conversations');
+
+  if (conversationId && conversations[conversationId]) {
+    const conv = conversations[conversationId];
     if (conv.userId === userId) {
       return conv;
     }
   }
-  const id = conversationId || `conv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+  const id =
+    conversationId ||
+    `conv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const conv = { id, userId, messages: [] };
-  conversations.set(id, conv);
+  conversations[id] = conv;
+  writeCollection('conversations', conversations);
   return conv;
 }
 
 function getConversation(conversationId, userId) {
-  const conv = conversations.get(conversationId);
+  const conversations = readCollection('conversations');
+  const conv = conversations[conversationId];
   if (!conv || conv.userId !== userId) {
     return null;
   }
@@ -88,31 +104,40 @@ function getConversation(conversationId, userId) {
 }
 
 function appendMessage(conversationId, message) {
-  const conv = conversations.get(conversationId);
-  if (!conv) return;
-  conv.messages.push(message);
+  updateCollection('conversations', (conversations) => {
+    const conv = conversations[conversationId];
+    if (!conv) {
+      return conversations;
+    }
+    conv.messages.push(message);
+    return conversations;
+  });
 }
 
 function recordMetrics({ tokens, cost_usd, latency_ms }) {
-  metrics.total_requests += 1;
-  metrics.total_tokens += tokens;
-  metrics.total_cost_usd += cost_usd;
-  metrics.latencies.push(latency_ms);
-  if (metrics.latencies.length > 10_000) {
-    metrics.latencies = metrics.latencies.slice(-5_000);
-  }
+  updateCollection('metrics', (metrics) => {
+    metrics.total_requests += 1;
+    metrics.total_tokens += tokens;
+    metrics.total_cost_usd += cost_usd;
+    metrics.latencies.push(latency_ms);
+    if (metrics.latencies.length > 10_000) {
+      metrics.latencies = metrics.latencies.slice(-5_000);
+    }
+    return metrics;
+  });
 }
 
 function getMetricsSnapshot() {
+  const metrics = readCollection('metrics');
   const latencies = [...metrics.latencies].sort((a, b) => a - b);
   const avg =
     latencies.length === 0
       ? 0
       : latencies.reduce((s, v) => s + v, 0) / latencies.length;
-  const p95Index = latencies.length === 0 ? 0 : Math.min(
-    latencies.length - 1,
-    Math.floor(latencies.length * 0.95)
-  );
+  const p95Index =
+    latencies.length === 0
+      ? 0
+      : Math.min(latencies.length - 1, Math.floor(latencies.length * 0.95));
   const p95 = latencies.length === 0 ? 0 : latencies[p95Index];
 
   return {

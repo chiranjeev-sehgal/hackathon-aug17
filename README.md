@@ -37,6 +37,16 @@ Server listens on `http://localhost:3000`.
 | emp      | emp123    | Employee |
 | guest    | guest123  | Guest    |
 
+## Data store
+
+Runtime state (users, conversations, metrics) is stored as JSON files under `data/`.
+
+```bash
+npm run db:clear   # wipe data/*.json and restore seed users
+```
+
+Optional: set `DATA_DIR=/path/to/dir` to use a different folder.
+
 ## Tests
 
 ```bash

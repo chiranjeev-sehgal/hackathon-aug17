@@ -40,6 +40,26 @@ node grader/probe.js
 
 Optional: copy `.env.example` to `.env` if you need local overrides.
 
+## Data store
+
+This app does **not** use an external database. Runtime state is stored as JSON files on disk under `data/`:
+
+- `data/users.json` — registered users
+- `data/conversations.json` — chat history
+- `data/metrics.json` — aggregate request metrics
+
+Knowledge-base documents live separately in `kb/` (read-only reference content).
+
+To wipe runtime data and restore the three seed users:
+
+```bash
+npm run db:clear
+```
+
+Use this when you want a clean slate (for example after registration experiments or noisy probe runs). Restart the server afterward if it is already running.
+
+Optional: set `DATA_DIR=/some/other/path` to store JSON files somewhere else.
+
 ## What "done" looks like
 
 - Happy-path demo still works.
@@ -54,6 +74,6 @@ Use `grader/CHECKLIST.md` plus the probe output. A green demo alone does **not**
 ## Tips
 
 - Prefer behavior checks over grepping for crash stacks — many failures still return HTTP 200.
-- Compare "hardened" vs older modules when you spot duplicates.
+- Compare alternate module versions when you notice duplicates in the same area.
 - Re-run `grader/probe.js` after each fix; some issues only appear under concurrency or edge inputs.
 - Do not log passwords or raw tokens while debugging.

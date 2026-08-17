@@ -19,6 +19,9 @@ const ROOT = path.join(__dirname, '..');
 const KB_DIR = path.join(ROOT, 'kb');
 const LOGS_DIR = path.join(ROOT, 'logs');
 const FRONTEND_DIR = path.join(ROOT, 'frontend');
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(ROOT, 'data');
 
 module.exports = {
   JWT_SECRET,
@@ -34,4 +37,5 @@ module.exports = {
   KB_DIR,
   LOGS_DIR,
   FRONTEND_DIR,
+  DATA_DIR,
 };

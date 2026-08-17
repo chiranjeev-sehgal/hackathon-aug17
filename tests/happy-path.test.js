@@ -1,14 +1,23 @@
 'use strict';
 
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+
+const testDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ai-support-test-'));
+process.env.DATA_DIR = testDataDir;
+
 const { createApp } = require('../src/index');
+const { clearAll } = require('../src/db/jsonDb');
+const { seedUsers } = require('../src/store');
 
 let server;
 let baseUrl;
 
-function request(method, path, { token, body } = {}) {
-  return fetch(`${baseUrl}${path}`, {
+function request(method, pathName, { token, body } = {}) {
+  return fetch(`${baseUrl}${pathName}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -19,6 +28,8 @@ function request(method, path, { token, body } = {}) {
 }
 
 before(async () => {
+  clearAll();
+  await seedUsers();
   const app = await createApp();
   await new Promise((resolve) => {
     server = app.listen(0, '127.0.0.1', resolve);
@@ -31,6 +42,7 @@ after(async () => {
   if (server) {
     await new Promise((resolve) => server.close(resolve));
   }
+  fs.rmSync(testDataDir, { recursive: true, force: true });
 });
 
 describe('happy path', () => {

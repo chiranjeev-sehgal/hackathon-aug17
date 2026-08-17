@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "test": "node --test tests/",
-    "grader": "node grader/probe.js"
+    "grader": "node grader/probe.js",
+    "db:clear": "node scripts/clear-db.js"
   },
   "engines": {
     "node": ">=20"
