@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Support Assistant</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app" data-testid="app_shell">
+    <header class="header">
+      <div class="brand" data-testid="app_brand_text">AI Support Assistant</div>
+      <div class="header-actions">
+        <span id="userLabel" class="user-label" data-testid="header_user_label"></span>
+        <button id="logoutBtn" class="btn ghost hidden" type="button" data-testid="header_logout_button">Log out</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="authPanel" class="panel auth-panel" data-testid="auth_panel">
+        <h1 data-testid="auth_heading">Sign in</h1>
+        <p class="muted" data-testid="auth_subtitle">Use your company credentials to chat with the knowledge base.</p>
+
+        <div class="tabs" role="tablist">
+          <button id="tabLogin" class="tab active" type="button" data-testid="auth_login_tab">Login</button>
+          <button id="tabRegister" class="tab" type="button" data-testid="auth_register_tab">Register</button>
+        </div>
+
+        <form id="loginForm" class="form" data-testid="auth_login_form">
+          <label>
+            Username
+            <input id="loginUsername" name="username" autocomplete="username" required data-testid="auth_login_username_input" />
+          </label>
+          <label>
+            Password
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required data-testid="auth_login_password_input" />
+          </label>
+          <button type="submit" class="btn primary" data-testid="auth_login_submit_button">Login</button>
+          <p id="loginError" class="error" data-testid="auth_login_error_message"></p>
+        </form>
+
+        <form id="registerForm" class="form hidden" data-testid="auth_register_form">
+          <label>
+            Username
+            <input id="registerUsername" name="username" autocomplete="username" required data-testid="auth_register_username_input" />
+          </label>
+          <label>
+            Password
+            <input id="registerPassword" name="password" type="password" autocomplete="new-password" required data-testid="auth_register_password_input" />
+          </label>
+          <button type="submit" class="btn primary" data-testid="auth_register_submit_button">Create account</button>
+          <p id="registerError" class="error" data-testid="auth_register_error_message"></p>
+        </form>
+      </section>
+
+      <section id="chatPanel" class="panel chat-panel hidden" data-testid="chat_panel">
+        <div class="chat-layout">
+          <aside class="history" data-testid="chat_history_panel">
+            <h2 data-testid="chat_history_heading">Conversation</h2>
+            <p id="conversationIdLabel" class="muted small" data-testid="chat_conversation_id_text">No conversation yet</p>
+            <button id="refreshHistoryBtn" class="btn ghost" type="button" data-testid="chat_refresh_history_button">Refresh history</button>
+            <ul id="historyList" class="history-list" data-testid="chat_history_list"></ul>
+          </aside>
+
+          <div class="chat-main">
+            <div id="messages" class="messages" data-testid="chat_messages_list"></div>
+            <form id="chatForm" class="composer" data-testid="chat_composer_form">
+              <textarea
+                id="chatInput"
+                rows="3"
+                placeholder="Ask about leave policy, onboarding, or other workplace topics…"
+                required
+                data-testid="chat_message_input"
+              ></textarea>
+              <button id="sendBtn" type="submit" class="btn primary" data-testid="chat_send_button">Send</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

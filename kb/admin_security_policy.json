@@ -1,0 +1,6 @@
+{
+  "doc_id": "admin_security_policy",
+  "title": "Internal Security Policy",
+  "visibility": "admin",
+  "content": "Production access requires MFA and temporary elevated roles via the break-glass portal. Secrets must live in the vault; never in source control. Security incidents must be reported within 1 hour to security@company.example. Admin API keys rotate every 90 days. Laptop full-disk encryption is mandatory."
+}

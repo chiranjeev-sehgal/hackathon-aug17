@@ -1,0 +1,21 @@
+{
+  "name": "ai-support-assistant",
+  "version": "1.0.0",
+  "description": "AI Support Assistant — internal knowledge base chat with RBAC, rate limits, and observability",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/",
+    "grader": "node grader/probe.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
